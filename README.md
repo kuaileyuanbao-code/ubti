@@ -49,6 +49,35 @@ http://127.0.0.1:5000/ubti
 
 本项目需要后端保护星辰 API Key，不能直接部署成纯静态网页。推荐部署到 Render、Railway、PythonAnywhere 或自己的云服务器。
 
+### 腾讯云 CloudBase 云托管
+
+项目已包含 `Dockerfile` 和 `.dockerignore`，可以通过 CloudBase 云托管从 GitHub 仓库构建容器镜像。
+
+创建云托管服务时：
+
+```text
+服务端口：80
+构建方式：Dockerfile
+Dockerfile 路径：Dockerfile
+```
+
+需要配置环境变量：
+
+```text
+XINGCHEN_API_KEY=你的 API Key
+XINGCHEN_API_SECRET=你的 API Secret
+XINGCHEN_FLOW_ID=你的 UBTI Agent FlowID
+XINGCHEN_API_URL=https://xingchen-api.xf-yun.com/workflow/v1/chat/completions
+```
+
+健康检查地址：
+
+```text
+/healthz
+```
+
+### Render / Railway 等海外平台
+
 生产环境启动命令：
 
 ```bash

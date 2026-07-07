@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+__pycache__/
+*.pyc
+*.log
+.venv/
+venv/
+cloudflared.err.log
+cloudflared.out.log
+flask.err.log
+flask.out.log
+ubti-mobile.png
