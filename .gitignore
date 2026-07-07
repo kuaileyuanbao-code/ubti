@@ -1,0 +1,8 @@
+.env
+notices.json
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
+ubti-mobile.png
