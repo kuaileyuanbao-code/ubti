@@ -68,6 +68,7 @@ XINGCHEN_API_KEY=你的 API Key
 XINGCHEN_API_SECRET=你的 API Secret
 XINGCHEN_FLOW_ID=你的 UBTI Agent FlowID
 XINGCHEN_API_URL=https://xingchen-api.xf-yun.com/workflow/v1/chat/completions
+XINGCHEN_AGENT_URL=你的星辰 Agent 公开体验地址
 ```
 
 健康检查地址：
@@ -91,6 +92,7 @@ XINGCHEN_API_KEY=你的 API Key
 XINGCHEN_API_SECRET=你的 API Secret
 XINGCHEN_FLOW_ID=你的 UBTI Agent FlowID
 XINGCHEN_API_URL=https://xingchen-api.xf-yun.com/workflow/v1/chat/completions
+XINGCHEN_AGENT_URL=你的星辰 Agent 公开体验地址
 ```
 
 健康检查地址：

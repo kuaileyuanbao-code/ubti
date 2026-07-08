@@ -17,6 +17,7 @@ XINGCHEN_API_URL = os.getenv(
 XINGCHEN_API_KEY = os.getenv("XINGCHEN_API_KEY", "")
 XINGCHEN_API_SECRET = os.getenv("XINGCHEN_API_SECRET", "")
 XINGCHEN_FLOW_ID = os.getenv("XINGCHEN_FLOW_ID", "")
+XINGCHEN_AGENT_URL = os.getenv("XINGCHEN_AGENT_URL", "")
 
 
 PERSONAS = {
@@ -529,6 +530,7 @@ def ubti_page():
             for text, options in QUESTIONS
         ],
         "personas": PERSONAS,
+        "agentUrl": XINGCHEN_AGENT_URL,
     }
     payload = json.dumps(data, ensure_ascii=False)
     return f"""<!doctype html>
@@ -782,6 +784,10 @@ def ubti_page():
       cursor: pointer;
       font-weight: 700;
       border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
     }}
     .btn.primary {{
       background: var(--ink);
@@ -990,6 +996,7 @@ def ubti_page():
         </div>
         <div class="actions">
           <button class="btn primary" id="aiBtn" type="button">让星辰 Agent 再补一句</button>
+          <a class="btn primary" id="agentBtn" href="#" target="_blank" rel="noopener">去星辰 Agent 支持热度</a>
           <button class="btn primary" id="copyBtn" type="button">复制结果</button>
           <button class="btn" id="restartBtn" type="button">重新测试</button>
         </div>
@@ -1002,6 +1009,7 @@ def ubti_page():
     const data = JSON.parse(document.getElementById('ubti-data').textContent);
     const questions = data.questions;
     const personas = data.personas;
+    const agentUrl = data.agentUrl || '';
     let current = 0;
     let answers = Array(questions.length).fill(null);
     let otherAnswers = Array(questions.length).fill('');
@@ -1010,6 +1018,16 @@ def ubti_page():
 
     const $ = (id) => document.getElementById(id);
     const miniGrid = $('miniGrid');
+    if (agentUrl) {{
+      $('agentBtn').href = agentUrl;
+    }} else {{
+      $('agentBtn').style.display = 'none';
+    }}
+
+    function prewarmBackend() {{
+      fetch('/healthz', {{ cache: 'no-store' }}).catch(() => {{}});
+    }}
+
     questions.forEach((_, index) => {{
       const dot = document.createElement('div');
       dot.className = 'dot';
@@ -1164,8 +1182,9 @@ def ubti_page():
         `受苦指数：${{scored.suffering}}/100`,
         `最像的一句话：${{primary.verdict}}`,
         `自救建议：${{primary.advice}}`,
-        `分享文案：${{share}}`
-      ].join('\\n');
+        `分享文案：${{share}}`,
+        agentUrl ? `星辰 Agent 支持入口：${{agentUrl}}` : ''
+      ].filter(Boolean).join('\\n');
       $('quiz').style.display = 'none';
       $('result').style.display = 'block';
     }}
@@ -1223,6 +1242,7 @@ def ubti_page():
       setTimeout(() => $('toast').style.display = 'none', 1200);
     }});
     renderQuestion();
+    prewarmBackend();
   </script>
 </body>
 </html>"""
