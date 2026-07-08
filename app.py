@@ -482,7 +482,12 @@ AI补刀：
 只写 1 句话，18-32 个字，抓住这个结果最有记忆点的反差。
 
 今日自救任务：
-只给 1 条今天就能做的小任务，不超过 18 个字。
+给 3 条今天就能做的小任务，每条不超过 18 个字。任务必须具体、低门槛、可执行。
+标题后不要空行，直接输出编号列表：
+1. 任务
+2. 任务
+3. 任务
+不要重复同一种意思，三条任务必须从不同角度解决问题。
 
 分享文案：
 生成 1 句朋友圈/空间/小红书可发的文案，不超过 28 个字。
@@ -1140,7 +1145,7 @@ def ubti_page():
         title.textContent = section.title === 'AI个性化补刀' ? 'AI补刀' : section.title;
         const body = document.createElement('div');
         body.className = 'ai-section-body';
-        body.textContent = section.body.replace(/^\\d+[.、]\\s*/, '').trim();
+        body.textContent = section.body.trim();
         card.append(title, body);
         report.appendChild(card);
       }});
