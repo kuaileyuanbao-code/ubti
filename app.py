@@ -720,6 +720,19 @@ def ubti_page():
       padding: 26px;
       border-bottom: 1px solid var(--line);
       background: linear-gradient(135deg, var(--cyan), var(--lilac));
+      align-items: start;
+    }}
+    .result-visual {{
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+    }}
+    .persona-art {{
+      width: 142px;
+      aspect-ratio: 1;
+      object-fit: contain;
+      border-radius: 8px;
+      background: rgba(255,255,255,.48);
     }}
     .result-code {{
       font-size: clamp(42px, 8vw, 86px);
@@ -839,6 +852,8 @@ def ubti_page():
       .question-panel {{ padding: 18px; }}
       .question-title {{ font-size: 26px; }}
       .result-head {{ grid-template-columns: 1fr; }}
+      .result-visual {{ justify-items: start; }}
+      .persona-art {{ width: 128px; }}
       .score {{ width: 112px; height: 112px; }}
       .result-body {{ grid-template-columns: 1fr; padding: 18px; }}
       .actions {{ padding: 0 18px 18px; }}
@@ -885,7 +900,10 @@ def ubti_page():
             <h2 class="result-code" id="resultCode"></h2>
             <p class="result-name" id="resultName"></p>
           </div>
-          <div class="score"><span id="sufferScore"></span></div>
+          <div class="result-visual">
+            <img class="persona-art" id="personaArt" src="static/personas/DDL-er.webp" alt="UBTI 人格蛋">
+            <div class="score"><span id="sufferScore"></span></div>
+          </div>
         </div>
         <div class="result-body">
           <div class="block"><div class="label">副人格</div><p class="text" id="secondary"></p></div>
@@ -1036,6 +1054,8 @@ def ubti_page():
       const secondary = personas[scored.secondary];
       $('resultCode').textContent = scored.primary;
       $('resultName').textContent = primary.name;
+      $('personaArt').src = `static/personas/${{scored.primary}}.webp`;
+      $('personaArt').alt = `${{scored.primary}}｜${{primary.name}} 人格蛋`;
       $('sufferScore').innerHTML = `${{scored.suffering}}<br><span style="font-size:13px">受苦指数</span>`;
       $('secondary').textContent = `${{scored.secondary}}｜${{secondary.name}}`;
       $('verdict').textContent = primary.verdict;
