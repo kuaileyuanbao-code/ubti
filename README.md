@@ -18,16 +18,20 @@ pip install -r requirements.txt
 
 ## 配置星辰 Agent 链接
 
-复制 `.env.example` 为 `.env`：
+静态部署时，填写 `static/config.js`：
 
-```powershell
-Copy-Item .env.example .env
+```js
+window.UBTI_CONFIG = {
+  agentUrl: "你的星辰 Agent 公开体验地址",
+};
 ```
 
-填写已经发布的星辰 Agent 公开体验地址：
+如果星辰 Agent 链接还在审核，可以先留空：
 
-```text
-XINGCHEN_AGENT_URL=你的星辰 Agent 公开体验地址
+```js
+window.UBTI_CONFIG = {
+  agentUrl: "",
+};
 ```
 
 如果暂时不填，网站仍然可以完成测试，只是结果页不会显示“去星辰 Agent 深度分析”的入口。
@@ -44,13 +48,27 @@ python app.py
 http://127.0.0.1:5000/ubti
 ```
 
-## 部署成正式网站
+## 部署成正式网站：优先静态托管
 
-本项目是 Flask 网站，推荐部署到腾讯云 CloudBase 云托管。网站本身只负责测试和结果展示，AI 深度分析发生在星辰 Agent 公开页面。
+当前版本不在网站里调用星辰 API，推荐部署成静态网站。静态托管没有后端冷启动，更适合很多同学同时打开测试。
 
-### 腾讯云 CloudBase 云托管
+生成静态文件：
 
-项目已包含 `Dockerfile` 和 `.dockerignore`，可以通过 CloudBase 云托管从 GitHub 仓库构建容器镜像。
+```powershell
+python build_static.py
+```
+
+生成后上传 `dist` 目录到腾讯云 CloudBase 静态网站托管。
+
+推荐链路：
+
+```text
+朋友打开测试网站 -> 完成 24 题 -> 一键复制 UBTI 结果 -> 跳转星辰 Agent -> 粘贴结果继续聊
+```
+
+### 腾讯云 CloudBase 云托管备用方案
+
+如果以后又想让网站自己提供后端接口，也可以继续使用云托管。项目保留了 `Dockerfile` 和 `.dockerignore`，可以通过 CloudBase 云托管从 GitHub 仓库构建容器镜像。
 
 创建云托管服务时：
 
@@ -60,7 +78,7 @@ http://127.0.0.1:5000/ubti
 Dockerfile 路径：Dockerfile
 ```
 
-需要配置环境变量：
+如果用云托管，星辰 Agent 链接可以用环境变量配置：
 
 ```text
 XINGCHEN_AGENT_URL=你的星辰 Agent 公开体验地址

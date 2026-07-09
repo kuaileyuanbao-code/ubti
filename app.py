@@ -422,8 +422,8 @@ def healthz():
 
 @app.get("/ubti")
 def ubti_page():
-    avatar_path = "/static/ubti-avatar.png"
-    avatar_url = f"{request.url_root.rstrip('/')}{avatar_path}"
+    avatar_path = "static/ubti-avatar.png"
+    avatar_url = f"{request.url_root.rstrip('/')}/{avatar_path}"
     data = {
         "questions": [
             {
@@ -933,12 +933,13 @@ def ubti_page():
     </main>
   </div>
   <div class="toast" id="toast">已复制</div>
+  <script src="static/config.js"></script>
   <script id="ubti-data" type="application/json">{payload}</script>
   <script>
     const data = JSON.parse(document.getElementById('ubti-data').textContent);
     const questions = data.questions;
     const personas = data.personas;
-    const agentUrl = data.agentUrl || '';
+    const agentUrl = (window.UBTI_CONFIG && window.UBTI_CONFIG.agentUrl) || data.agentUrl || '';
     let current = 0;
     let answers = Array(questions.length).fill(null);
     let otherAnswers = Array(questions.length).fill('');
@@ -956,12 +957,11 @@ def ubti_page():
       $('agentBoost').style.display = 'none';
     }}
 
-    function prewarmBackend() {{
-      fetch('/healthz', {{ cache: 'no-store' }}).catch(() => {{}});
-    }}
-
     function siteUrl() {{
-      return `${{window.location.origin}}/ubti`;
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.hash = '';
+      return url.toString().replace(/index\\.html$/, '');
     }}
 
     function showToast(message = '已复制') {{
@@ -1150,7 +1150,6 @@ def ubti_page():
       showToast('分享文案已复制');
     }});
     renderQuestion();
-    prewarmBackend();
   </script>
 </body>
 </html>"""
