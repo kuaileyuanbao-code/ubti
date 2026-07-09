@@ -861,6 +861,10 @@ def ubti_page():
       border-color: var(--ink);
       background: var(--cyan);
     }}
+    .block.boost {{
+      border-color: var(--green);
+      background: var(--mint);
+    }}
     .label {{
       color: var(--muted);
       font-size: 13px;
@@ -917,6 +921,12 @@ def ubti_page():
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+    }}
+    .boost-actions {{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
     }}
     .toast {{
       position: fixed;
@@ -996,12 +1006,20 @@ def ubti_page():
           <div class="block wide highlight"><div class="label">你最像的一句话</div><p class="text big-line" id="verdict"></p></div>
           <div class="block wide"><div class="label">补刀</div><p class="text" id="jab"></p></div>
           <div class="block wide"><div class="label">分享文案</div><p class="text" id="shareText"></p></div>
+          <div class="block wide boost" id="agentBoost">
+            <div class="label">星火杯支持入口</div>
+            <p class="text">去星辰 Agent 继续追问、生成朋友圈文案，也能给 UBTI 增加作品热度。</p>
+            <div class="boost-actions">
+              <button class="btn primary" id="agentCopyBtn" type="button">复制结果并打开 Agent</button>
+              <a class="btn" id="agentLinkInline" href="#" target="_blank" rel="noopener">只打开 Agent</a>
+            </div>
+          </div>
           <div class="block wide"><div class="label">星辰 Agent 再补一句</div><div class="ai-report" id="aiReport"><p class="text">想更像你一点，就让星辰 Agent 再补一句。</p></div></div>
           <p class="fineprint">UBTI 是娱乐型校园人格测试，不是心理诊断或专业测评。</p>
         </div>
         <div class="actions">
           <button class="btn primary" id="aiBtn" type="button">让星辰 Agent 再补一句</button>
-          <a class="btn primary" id="agentBtn" href="#" target="_blank" rel="noopener">去星辰 Agent 支持热度</a>
+          <a class="btn primary" id="agentBtn" href="#" target="_blank" rel="noopener">打开星辰 Agent 追问</a>
           <button class="btn primary" id="copyBtn" type="button">复制结果</button>
           <button class="btn" id="restartBtn" type="button">重新测试</button>
         </div>
@@ -1019,18 +1037,27 @@ def ubti_page():
     let answers = Array(questions.length).fill(null);
     let otherAnswers = Array(questions.length).fill('');
     let lastResultText = '';
+    let lastAgentPrompt = '';
     let lastScored = null;
 
     const $ = (id) => document.getElementById(id);
     const miniGrid = $('miniGrid');
     if (agentUrl) {{
       $('agentBtn').href = agentUrl;
+      $('agentLinkInline').href = agentUrl;
     }} else {{
       $('agentBtn').style.display = 'none';
+      $('agentBoost').style.display = 'none';
     }}
 
     function prewarmBackend() {{
       fetch('/healthz', {{ cache: 'no-store' }}).catch(() => {{}});
+    }}
+
+    function showToast(message = '已复制') {{
+      $('toast').textContent = message;
+      $('toast').style.display = 'block';
+      setTimeout(() => $('toast').style.display = 'none', 1400);
     }}
 
     questions.forEach((_, index) => {{
@@ -1181,6 +1208,18 @@ def ubti_page():
       const share = `我测出了 ${{scored.primary}}｜${{primary.name}}。笑死，不是性格，是大学给我的工伤鉴定。`;
       $('shareText').textContent = share;
       setAiReportMessage('想更像你一点，就让星辰 Agent 再补一句。');
+      lastAgentPrompt = [
+        '我的 UBTI 测试结果：',
+        `主人格：${{scored.primary}}｜${{primary.name}}`,
+        `副人格：${{scored.secondary}}｜${{secondary.name}}`,
+        `受苦指数：${{scored.suffering}}/100`,
+        `受苦领域：${{primary.domain}}`,
+        `人格判词：${{primary.verdict}}`,
+        `补刀一句：${{primary.jab}}`,
+        `自救建议：${{primary.advice}}`,
+        '',
+        '请基于这个结果继续和我聊，先给我更贴脸的 AI 补刀、3 条今日自救任务和一条朋友圈文案。'
+      ].join('\\n');
       lastResultText = [
         `我的 UBTI 主人格：${{scored.primary}}｜${{primary.name}}`,
         `副人格：${{scored.secondary}}｜${{secondary.name}}`,
@@ -1216,6 +1255,7 @@ def ubti_page():
       otherAnswers = Array(questions.length).fill('');
       current = 0;
       lastScored = null;
+      lastAgentPrompt = '';
       $('result').style.display = 'none';
       $('quiz').style.display = 'grid';
       renderQuestion();
@@ -1241,10 +1281,19 @@ def ubti_page():
         $('aiBtn').disabled = false;
       }}
     }});
+    $('agentCopyBtn').addEventListener('click', async () => {{
+      if (!agentUrl || !lastAgentPrompt) return;
+      try {{
+        await navigator.clipboard.writeText(lastAgentPrompt);
+        showToast('已复制，去星辰继续追问');
+      }} catch (error) {{
+        showToast('已打开 Agent，请手动粘贴结果');
+      }}
+      window.open(agentUrl, '_blank', 'noopener');
+    }});
     $('copyBtn').addEventListener('click', async () => {{
       await navigator.clipboard.writeText(lastResultText);
-      $('toast').style.display = 'block';
-      setTimeout(() => $('toast').style.display = 'none', 1200);
+      showToast('结果已复制');
     }});
     renderQuestion();
     prewarmBackend();
