@@ -891,7 +891,6 @@ def ubti_page():
           <div class="block"><div class="label">副人格</div><p class="text" id="secondary"></p></div>
           <div class="block"><div class="label">今日自救</div><p class="text" id="advice"></p></div>
           <div class="block wide highlight"><div class="label">你最像的一句话</div><p class="text big-line" id="verdict"></p></div>
-          <div class="block wide"><div class="label">补刀</div><p class="text" id="jab"></p></div>
           <div class="block wide"><div class="label">分享文案</div><p class="text" id="shareText"></p></div>
           <div class="block wide boost" id="agentBoost">
             <div class="label">想让 AI 分析你的情况？</div>
@@ -1040,7 +1039,6 @@ def ubti_page():
       $('sufferScore').innerHTML = `${{scored.suffering}}<br><span style="font-size:13px">受苦指数</span>`;
       $('secondary').textContent = `${{scored.secondary}}｜${{secondary.name}}`;
       $('verdict').textContent = primary.verdict;
-      $('jab').textContent = primary.jab;
       $('advice').textContent = primary.advice;
       const share = `我测出了 ${{scored.primary}}｜${{primary.name}}。笑死，不是性格，是大学给我的工伤鉴定。`;
       $('shareText').textContent = share;
@@ -1051,7 +1049,6 @@ def ubti_page():
         `受苦指数：${{scored.suffering}}/100`,
         `受苦领域：${{primary.domain}}`,
         `人格判词：${{primary.verdict}}`,
-        `补刀一句：${{primary.jab}}`,
         `自救建议：${{primary.advice}}`,
         '',
         '请基于这个结果继续分析我的情况，给我更贴脸的 AI 补刀、3 条今日自救任务和一条朋友圈文案。'
