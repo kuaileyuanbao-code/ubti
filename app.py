@@ -983,7 +983,6 @@ def ubti_page():
           <div class="options" id="options"></div>
           <div class="other-box" id="otherBox">
             <textarea id="otherInput" placeholder="写下你的真实反应。"></textarea>
-            <p class="other-note">自由回答会用于星辰 Agent 个性化解读。</p>
           </div>
           <div class="nav">
             <button class="btn" id="prevBtn" type="button">上一题</button>
