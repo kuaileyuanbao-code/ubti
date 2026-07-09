@@ -2,7 +2,6 @@ import json
 import os
 from collections import Counter
 
-import requests
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
 
@@ -10,13 +9,6 @@ from flask import Flask, jsonify, request
 load_dotenv()
 app = Flask(__name__)
 
-XINGCHEN_API_URL = os.getenv(
-    "XINGCHEN_API_URL",
-    "https://xingchen-api.xf-yun.com/workflow/v1/chat/completions",
-)
-XINGCHEN_API_KEY = os.getenv("XINGCHEN_API_KEY", "")
-XINGCHEN_API_SECRET = os.getenv("XINGCHEN_API_SECRET", "")
-XINGCHEN_FLOW_ID = os.getenv("XINGCHEN_FLOW_ID", "")
 XINGCHEN_AGENT_URL = os.getenv("XINGCHEN_AGENT_URL", "")
 
 
@@ -416,97 +408,6 @@ def score_answers(answers: list[str]) -> dict:
         "suffering": suffering,
         "answers": answers,
     }
-
-
-def call_xingchen_agent(user_input: str, uid: str = "ubti-web") -> str:
-    if not (XINGCHEN_API_KEY and XINGCHEN_API_SECRET and XINGCHEN_FLOW_ID):
-        raise RuntimeError("Missing Xingchen API config")
-
-    resp = requests.post(
-        XINGCHEN_API_URL,
-        headers={"Authorization": f"Bearer {XINGCHEN_API_KEY}:{XINGCHEN_API_SECRET}"},
-        json={
-            "flow_id": XINGCHEN_FLOW_ID,
-            "uid": uid,
-            "stream": False,
-            "parameters": {"AGENT_USER_INPUT": user_input},
-            "ext": {"bot_id": "workflow", "caller": "workflow"},
-        },
-        timeout=120,
-    )
-    resp.raise_for_status()
-    payload = resp.json()
-    if payload.get("code") != 0:
-        raise RuntimeError(f"Xingchen API error: {payload}")
-    choices = payload.get("choices") or []
-    if not choices:
-        return ""
-    return choices[0].get("delta", {}).get("content", "").strip()
-
-
-def build_ai_prompt(result: dict, other_answers: list[str] | None = None) -> str:
-    primary_code = result["primary"]
-    secondary_code = result["secondary"]
-    primary = PERSONAS[primary_code]
-    secondary = PERSONAS[secondary_code]
-    answer_text = " ".join(
-        f"{index + 1}{answer}" for index, answer in enumerate(result.get("answers", []))
-    )
-    other_text = "\n".join(
-        f"{index + 1}. {text.strip()}"
-        for index, text in enumerate(other_answers or [])
-        if text and text.strip()
-    ) or "无"
-    return f"""
-你是 UBTI「大学生大型受苦指标」的星辰 Agent。
-
-UBTI 是娱乐型校园人格测试，不是心理诊断。网页已经完成固定计分，你只负责基于结果生成更有网感、更个性化、更适合分享的解读。
-
-用户答案：{answer_text}
-用户自由回答：
-{other_text}
-
-固定计分结果：
-- 主人格：{primary_code}｜{primary["name"]}
-- 副人格：{secondary_code}｜{secondary["name"]}
-- 受苦指数：{result["suffering"]}/100
-- 主人格受苦领域：{primary["domain"]}
-- 主人格判词：{primary["verdict"]}
-- 主人格补刀：{primary["jab"]}
-- 主人格自救建议：{primary["advice"]}
-
-请输出以下三段，必须极简、有梗、像大学生会截图转发的结果，但不要攻击用户本人。
-不要使用 Markdown 标题、井号、加粗符号或项目符号，只保留下面这些中文段落名：
-
-AI补刀：
-只写 1 句话，18-32 个字，抓住这个结果最有记忆点的反差。
-
-今日自救任务：
-给 3 条今天就能做的小任务，每条不超过 18 个字。任务必须具体、低门槛、可执行。
-标题后不要空行，直接输出编号列表：
-1. 任务
-2. 任务
-3. 任务
-不要重复同一种意思，三条任务必须从不同角度解决问题。
-
-分享文案：
-生成 1 句朋友圈/空间/小红书可发的文案，不超过 28 个字。
-""".strip()
-
-
-def clean_ai_output(text: str) -> str:
-    markers = ["### 今日与你有关", "今日与你有关的", "### 被过滤掉的通知", "被过滤掉的通知"]
-    cleaned = text.strip()
-    for marker in markers:
-        index = cleaned.find(marker)
-        if index != -1:
-            cleaned = cleaned[:index].strip()
-    disclaimer_index = cleaned.find("免责声明")
-    if disclaimer_index != -1:
-        cleaned = cleaned[:disclaimer_index].strip()
-    cleaned = cleaned.replace("### ", "").replace("## ", "").replace("# ", "")
-    cleaned = cleaned.replace("**", "")
-    return cleaned
 
 
 @app.get("/")
@@ -964,7 +865,7 @@ def ubti_page():
       <div class="brand">
         <div class="brand-kicker"><span class="brand-mark">UBTI</span><span class="brand-full">Powered by Xingchen Agent</span></div>
         <h1>大学生大型受苦指标</h1>
-        <p class="sub">先测出你的校园受苦人格，再去星辰 Agent 解锁隐藏补刀。</p>
+        <p class="sub">先测出你的校园受苦人格，想深入分析再交给星辰 Agent。</p>
       </div>
       <div class="meter">
         <div class="meter-row"><span id="progressText">第 1 / 24 题</span><span id="pickedText">0 已选</span></div>
@@ -1006,11 +907,11 @@ def ubti_page():
           <div class="block wide"><div class="label">补刀</div><p class="text" id="jab"></p></div>
           <div class="block wide"><div class="label">分享文案</div><p class="text" id="shareText"></p></div>
           <div class="block wide boost" id="agentBoost">
-            <div class="label">星辰 Agent 隐藏补刀</div>
-            <p class="text">测完还没被说透？复制结果去星辰 Agent 继续追问，解锁更贴脸的补刀、自救计划和朋友圈文案。</p>
+            <div class="label">想让 AI 分析你的情况？</div>
+            <p class="text">复制你的 UBTI 结果，去星辰 Agent 继续聊。它会根据你的结果生成更贴脸的分析、自救计划和分享文案。</p>
             <div class="boost-actions">
-              <button class="btn primary" id="agentCopyBtn" type="button">复制结果并打开 Agent</button>
-              <a class="btn" id="agentLinkInline" href="#" target="_blank" rel="noopener">只打开 Agent</a>
+              <button class="btn primary" id="agentCopyBtn" type="button">复制结果，打开星辰 Agent</button>
+              <a class="btn" id="agentLinkInline" href="#" target="_blank" rel="noopener">只打开星辰 Agent</a>
             </div>
           </div>
           <div class="block wide">
@@ -1021,12 +922,10 @@ def ubti_page():
               <button class="btn" id="copySiteBtn" type="button">复制网站链接</button>
             </div>
           </div>
-          <div class="block wide"><div class="label">星辰 Agent 再补一句</div><div class="ai-report" id="aiReport"><p class="text">想更像你一点，就让星辰 Agent 再补一句。</p></div></div>
           <p class="fineprint">UBTI 是娱乐型校园人格测试，不是心理诊断或专业测评。</p>
         </div>
         <div class="actions">
-          <button class="btn primary" id="aiBtn" type="button">让星辰 Agent 再补一句</button>
-          <a class="btn primary" id="agentBtn" href="#" target="_blank" rel="noopener">打开星辰 Agent 追问</a>
+          <a class="btn primary" id="agentBtn" href="#" target="_blank" rel="noopener">去星辰 Agent 深度分析</a>
           <button class="btn primary" id="copyBtn" type="button">复制结果</button>
           <button class="btn" id="restartBtn" type="button">重新测试</button>
         </div>
@@ -1148,56 +1047,6 @@ def ubti_page():
       $('otherInput').value = otherAnswers[current] || '';
     }}
 
-    function cleanAiText(text) {{
-      return String(text || '')
-        .replace(/^#+\\s*/gm, '')
-        .replace(/\\*\\*/g, '')
-        .replace(/免责声明：[\\s\\S]*$/m, '')
-        .trim();
-    }}
-
-    function splitAiSections(text) {{
-      const cleaned = cleanAiText(text);
-      const titles = ['AI补刀', 'AI个性化补刀', '今日自救任务', '分享文案'];
-      const sections = [];
-      const pattern = new RegExp(`(${{titles.join('|')}})：`, 'g');
-      const matches = [...cleaned.matchAll(pattern)];
-      if (!matches.length) return [{{ title: '星辰 Agent 补刀', body: cleaned }}];
-      matches.forEach((match, index) => {{
-        const start = match.index + match[0].length;
-        const end = matches[index + 1] ? matches[index + 1].index : cleaned.length;
-        const body = cleaned.slice(start, end).trim();
-        if (body) sections.push({{ title: match[1], body }});
-      }});
-      return sections;
-    }}
-
-    function renderAiReport(text) {{
-      const report = $('aiReport');
-      report.innerHTML = '';
-      splitAiSections(text).forEach((section) => {{
-        const card = document.createElement('div');
-        card.className = 'ai-section';
-        const title = document.createElement('p');
-        title.className = 'ai-section-title';
-        title.textContent = section.title === 'AI个性化补刀' ? 'AI补刀' : section.title;
-        const body = document.createElement('div');
-        body.className = 'ai-section-body';
-        body.textContent = section.body.trim();
-        card.append(title, body);
-        report.appendChild(card);
-      }});
-    }}
-
-    function setAiReportMessage(message) {{
-      const report = $('aiReport');
-      report.innerHTML = '';
-      const text = document.createElement('p');
-      text.className = 'text';
-      text.textContent = message;
-      report.appendChild(text);
-    }}
-
     function showResult() {{
       const missing = answers.findIndex((answer) => !answer);
       if (missing !== -1) {{
@@ -1218,7 +1067,6 @@ def ubti_page():
       $('advice').textContent = primary.advice;
       const share = `我测出了 ${{scored.primary}}｜${{primary.name}}。笑死，不是性格，是大学给我的工伤鉴定。`;
       $('shareText').textContent = share;
-      setAiReportMessage('想更像你一点，就让星辰 Agent 再补一句。');
       lastAgentPrompt = [
         '我的 UBTI 测试结果：',
         `主人格：${{scored.primary}}｜${{primary.name}}`,
@@ -1229,7 +1077,7 @@ def ubti_page():
         `补刀一句：${{primary.jab}}`,
         `自救建议：${{primary.advice}}`,
         '',
-        '请基于这个结果继续和我聊，先给我更贴脸的 AI 补刀、3 条今日自救任务和一条朋友圈文案。'
+        '请基于这个结果继续分析我的情况，给我更贴脸的 AI 补刀、3 条今日自救任务和一条朋友圈文案。'
       ].join('\\n');
       lastResultText = [
         `我的 UBTI 主人格：${{scored.primary}}｜${{primary.name}}`,
@@ -1239,7 +1087,7 @@ def ubti_page():
         `自救建议：${{primary.advice}}`,
         `分享文案：${{share}}`,
         `测试入口：${{siteUrl()}}`,
-        agentUrl ? `星辰 Agent 隐藏补刀：${{agentUrl}}` : ''
+        agentUrl ? `星辰 Agent 深度分析入口：${{agentUrl}}` : ''
       ].filter(Boolean).join('\\n');
       $('quiz').style.display = 'none';
       $('result').style.display = 'block';
@@ -1271,27 +1119,6 @@ def ubti_page():
       $('result').style.display = 'none';
       $('quiz').style.display = 'grid';
       renderQuestion();
-    }});
-    $('aiBtn').addEventListener('click', async () => {{
-      if (!lastScored) return;
-      $('aiBtn').disabled = true;
-      setAiReportMessage('星辰 Agent 正在浓缩补刀...');
-      try {{
-        const response = await fetch('/api/ubti/ai-result', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ answers, otherAnswers, result: lastScored }})
-        }});
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || '生成失败');
-        const output = cleanAiText(payload.output);
-        renderAiReport(output);
-        lastResultText = `${{lastResultText}}\\n\\n星辰 Agent：\\n${{output}}`;
-      }} catch (error) {{
-        setAiReportMessage(`星辰 Agent 暂时没接上：${{error.message}}。你仍然可以先用固定结果卡分享。`);
-      }} finally {{
-        $('aiBtn').disabled = false;
-      }}
     }});
     $('agentCopyBtn').addEventListener('click', async () => {{
       if (!agentUrl || !lastAgentPrompt) return;
@@ -1339,24 +1166,6 @@ def api_ubti_result():
         return jsonify({"error": "Answers must be A/B/C/D/OTHER"}), 400
     result = score_answers(answers)
     return jsonify(result)
-
-
-@app.post("/api/ubti/ai-result")
-def api_ubti_ai_result():
-    body = request.get_json(force=True) or {}
-    answers = body.get("answers", [])
-    if len(answers) != len(QUESTIONS):
-        return jsonify({"error": "Need 24 answers"}), 400
-    if any(answer not in {"A", "B", "C", "D", "OTHER"} for answer in answers):
-        return jsonify({"error": "Answers must be A/B/C/D/OTHER"}), 400
-
-    other_answers = body.get("otherAnswers", [])
-    result = score_answers(answers)
-    try:
-        output = clean_ai_output(call_xingchen_agent(build_ai_prompt(result, other_answers), uid="ubti-web"))
-    except Exception as exc:
-        return jsonify({"error": str(exc)}), 502
-    return jsonify({"output": output, "result": result})
 
 
 if __name__ == "__main__":

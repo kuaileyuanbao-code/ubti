@@ -6,3 +6,4 @@ __pycache__/
 venv/
 *.log
 ubti-mobile.png
+ubti-mobile-*.png

@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 80
 
-CMD ["gunicorn", "-b", "0.0.0.0:80", "app:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:80", "--workers", "2", "--threads", "4", "--timeout", "30", "app:app"]
