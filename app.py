@@ -749,22 +749,25 @@ def ubti_page():
       padding: 24px;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
+      gap: 10px 18px;
     }}
     .block {{
-      border: 1px solid var(--line);
-      padding: 16px;
-      background: #fbfcff;
-      border-radius: 8px;
+      padding: 0;
+      background: transparent;
     }}
     .block.wide {{ grid-column: 1 / -1; }}
     .block.highlight {{
-      border-color: var(--ink);
-      background: var(--cyan);
+      margin: 8px 0 2px;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
     }}
     .block.boost {{
-      border-color: var(--green);
+      margin-top: 10px;
+      padding: 18px;
+      border: 1.5px solid var(--green);
       background: var(--mint);
+      border-radius: 8px;
     }}
     .label {{
       color: var(--muted);
@@ -782,40 +785,10 @@ def ubti_page():
     }}
     .fineprint {{
       grid-column: 1 / -1;
-      margin: 0;
+      margin: 2px 0 0;
       color: var(--muted);
       font-size: 12px;
       line-height: 1.5;
-    }}
-    .ai-report {{
-      display: grid;
-      gap: 10px;
-    }}
-    .ai-section {{
-      border: 1px solid var(--line);
-      background: #fff;
-      padding: 12px;
-      border-radius: 8px;
-    }}
-    .ai-section-title {{
-      margin: 0 0 6px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 800;
-    }}
-    .ai-section-body {{
-      margin: 0;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }}
-    .ai-section-body ol {{
-      margin: 0;
-      padding-left: 20px;
-    }}
-    .ai-section-body li {{
-      margin: 4px 0;
-      line-height: 1.65;
     }}
     .actions {{
       padding: 0 24px 24px;
@@ -828,6 +801,19 @@ def ubti_page():
       gap: 10px;
       flex-wrap: wrap;
       margin-top: 12px;
+    }}
+    .sub-actions {{
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }}
+    .sub-actions .btn {{
+      min-height: 40px;
+      padding: 8px 12px;
+      font-size: 14px;
     }}
     .toast {{
       position: fixed;
@@ -856,6 +842,7 @@ def ubti_page():
       .score {{ width: 112px; height: 112px; }}
       .result-body {{ grid-template-columns: 1fr; padding: 18px; }}
       .actions {{ padding: 0 18px 18px; }}
+      .actions .btn {{ flex: 1 1 120px; }}
     }}
   </style>
 </head>
@@ -911,21 +898,15 @@ def ubti_page():
             <p class="text">复制你的 UBTI 结果，去星辰 Agent 继续聊。它会根据你的结果生成更贴脸的分析、自救计划和分享文案。</p>
             <div class="boost-actions">
               <button class="btn primary" id="agentCopyBtn" type="button">复制结果，打开星辰 Agent</button>
-              <a class="btn" id="agentLinkInline" href="#" target="_blank" rel="noopener">只打开星辰 Agent</a>
             </div>
           </div>
-          <div class="block wide">
-            <div class="label">邀请朋友一起测</div>
-            <p class="text">把 UBTI 发给你的同学、室友、搭子，看看谁才是真正的校园受苦样本。</p>
-            <div class="boost-actions">
-              <button class="btn primary" id="shareSiteBtn" type="button">分享测试链接</button>
-              <button class="btn" id="copySiteBtn" type="button">复制网站链接</button>
-            </div>
+          <div class="sub-actions">
+            <button class="btn" id="shareSiteBtn" type="button">分享测试</button>
+            <button class="btn" id="copySiteBtn" type="button">复制链接</button>
           </div>
           <p class="fineprint">UBTI 是娱乐型校园人格测试，不是心理诊断或专业测评。</p>
         </div>
         <div class="actions">
-          <a class="btn primary" id="agentBtn" href="#" target="_blank" rel="noopener">去星辰 Agent 深度分析</a>
           <button class="btn primary" id="copyBtn" type="button">复制结果</button>
           <button class="btn" id="restartBtn" type="button">重新测试</button>
         </div>
@@ -949,11 +930,7 @@ def ubti_page():
 
     const $ = (id) => document.getElementById(id);
     const miniGrid = $('miniGrid');
-    if (agentUrl) {{
-      $('agentBtn').href = agentUrl;
-      $('agentLinkInline').href = agentUrl;
-    }} else {{
-      $('agentBtn').style.display = 'none';
+    if (!agentUrl) {{
       $('agentBoost').style.display = 'none';
     }}
 
