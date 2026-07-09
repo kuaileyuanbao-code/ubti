@@ -747,8 +747,8 @@ def ubti_page():
     }}
     .score {{
       position: absolute;
-      top: 24px;
-      right: 24px;
+      top: 34px;
+      right: 36px;
       border: 2px solid var(--ink);
       width: 88px;
       height: 88px;
@@ -857,7 +857,7 @@ def ubti_page():
       .result-head {{ padding: 22px 18px; }}
       .result-code {{ padding-right: 84px; }}
       .persona-art {{ width: min(68vw, 250px); }}
-      .score {{ top: 20px; right: 18px; width: 76px; height: 76px; font-size: 22px; }}
+      .score {{ top: 28px; right: 30px; width: 76px; height: 76px; font-size: 22px; }}
       .result-body {{ grid-template-columns: 1fr; padding: 18px; }}
       .actions {{ padding: 0 18px 18px; }}
       .actions .btn {{ flex: 1 1 120px; }}
@@ -922,12 +922,10 @@ def ubti_page():
           </div>
           <div class="sub-actions">
             <button class="btn" id="shareSiteBtn" type="button">分享测试</button>
-            <button class="btn" id="copySiteBtn" type="button">复制链接</button>
           </div>
           <p class="fineprint">UBTI 是娱乐型校园人格测试，不是心理诊断或专业测评。</p>
         </div>
         <div class="actions">
-          <button class="btn primary" id="copyBtn" type="button">复制结果</button>
           <button class="btn" id="restartBtn" type="button">重新测试</button>
         </div>
       </section>
@@ -1074,7 +1072,7 @@ def ubti_page():
         `人格判词：${{primary.verdict}}`,
         `自救建议：${{primary.advice}}`,
         '',
-        '请基于这个结果继续分析我的情况，给我更贴脸的 AI 补刀、3 条今日自救任务和一条朋友圈文案。'
+        '请基于这个结果继续分析我的情况，给我更贴脸的分析、3 条今日自救任务和一条朋友圈文案。'
       ].join('\\n');
       lastResultText = [
         `我的 UBTI 主人格：${{scored.primary}}｜${{primary.name}}`,
@@ -1126,14 +1124,6 @@ def ubti_page():
         showToast('已打开 Agent，请手动粘贴结果');
       }}
       window.open(agentUrl, '_blank', 'noopener');
-    }});
-    $('copyBtn').addEventListener('click', async () => {{
-      await navigator.clipboard.writeText(lastResultText);
-      showToast('结果已复制');
-    }});
-    $('copySiteBtn').addEventListener('click', async () => {{
-      await navigator.clipboard.writeText(siteUrl());
-      showToast('网站链接已复制');
     }});
     $('shareSiteBtn').addEventListener('click', async () => {{
       const text = '来测测你的 UBTI 大学生大型受苦指标，看看你在大学被什么反复暴打。';
