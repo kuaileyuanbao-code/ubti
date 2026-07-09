@@ -962,9 +962,9 @@ def ubti_page():
   <div class="shell">
     <aside class="rail">
       <div class="brand">
-        <div class="brand-kicker"><span class="brand-mark">UBTI</span><span class="brand-full">University Big Trouble Indicator</span></div>
+        <div class="brand-kicker"><span class="brand-mark">UBTI</span><span class="brand-full">Powered by Xingchen Agent</span></div>
         <h1>大学生大型受苦指标</h1>
-        <p class="sub">不是测你是什么人，是测你在大学被什么反复暴打。</p>
+        <p class="sub">先测出你的校园受苦人格，再去星辰 Agent 解锁隐藏补刀。</p>
       </div>
       <div class="meter">
         <div class="meter-row"><span id="progressText">第 1 / 24 题</span><span id="pickedText">0 已选</span></div>
@@ -975,7 +975,7 @@ def ubti_page():
     <main class="content">
       <section class="quiz" id="quiz">
         <div class="topline">
-          <span id="domainHint">University Big Trouble Indicator</span>
+          <span id="domainHint">Xingchen Agent Campus Test</span>
           <span id="answerHint"></span>
         </div>
         <div class="question-panel">
@@ -1007,11 +1007,19 @@ def ubti_page():
           <div class="block wide"><div class="label">补刀</div><p class="text" id="jab"></p></div>
           <div class="block wide"><div class="label">分享文案</div><p class="text" id="shareText"></p></div>
           <div class="block wide boost" id="agentBoost">
-            <div class="label">星火杯支持入口</div>
-            <p class="text">去星辰 Agent 继续追问、生成朋友圈文案，也能给 UBTI 增加作品热度。</p>
+            <div class="label">星辰 Agent 隐藏补刀</div>
+            <p class="text">测完还没被说透？复制结果去星辰 Agent 继续追问，解锁更贴脸的补刀、自救计划和朋友圈文案。</p>
             <div class="boost-actions">
               <button class="btn primary" id="agentCopyBtn" type="button">复制结果并打开 Agent</button>
               <a class="btn" id="agentLinkInline" href="#" target="_blank" rel="noopener">只打开 Agent</a>
+            </div>
+          </div>
+          <div class="block wide">
+            <div class="label">邀请朋友一起测</div>
+            <p class="text">把 UBTI 发给你的同学、室友、搭子，看看谁才是真正的校园受苦样本。</p>
+            <div class="boost-actions">
+              <button class="btn primary" id="shareSiteBtn" type="button">分享测试链接</button>
+              <button class="btn" id="copySiteBtn" type="button">复制网站链接</button>
             </div>
           </div>
           <div class="block wide"><div class="label">星辰 Agent 再补一句</div><div class="ai-report" id="aiReport"><p class="text">想更像你一点，就让星辰 Agent 再补一句。</p></div></div>
@@ -1052,6 +1060,10 @@ def ubti_page():
 
     function prewarmBackend() {{
       fetch('/healthz', {{ cache: 'no-store' }}).catch(() => {{}});
+    }}
+
+    function siteUrl() {{
+      return `${{window.location.origin}}/ubti`;
     }}
 
     function showToast(message = '已复制') {{
@@ -1227,7 +1239,8 @@ def ubti_page():
         `最像的一句话：${{primary.verdict}}`,
         `自救建议：${{primary.advice}}`,
         `分享文案：${{share}}`,
-        agentUrl ? `星辰 Agent 支持入口：${{agentUrl}}` : ''
+        `测试入口：${{siteUrl()}}`,
+        agentUrl ? `星辰 Agent 隐藏补刀：${{agentUrl}}` : ''
       ].filter(Boolean).join('\\n');
       $('quiz').style.display = 'none';
       $('result').style.display = 'block';
@@ -1294,6 +1307,21 @@ def ubti_page():
     $('copyBtn').addEventListener('click', async () => {{
       await navigator.clipboard.writeText(lastResultText);
       showToast('结果已复制');
+    }});
+    $('copySiteBtn').addEventListener('click', async () => {{
+      await navigator.clipboard.writeText(siteUrl());
+      showToast('网站链接已复制');
+    }});
+    $('shareSiteBtn').addEventListener('click', async () => {{
+      const text = '来测测你的 UBTI 大学生大型受苦指标，看看你在大学被什么反复暴打。';
+      if (navigator.share) {{
+        try {{
+          await navigator.share({{ title: 'UBTI 大学生大型受苦指标', text, url: siteUrl() }});
+          return;
+        }} catch (error) {{}}
+      }}
+      await navigator.clipboard.writeText(`${{text}}\\n${{siteUrl()}}`);
+      showToast('分享文案已复制');
     }});
     renderQuestion();
     prewarmBackend();
