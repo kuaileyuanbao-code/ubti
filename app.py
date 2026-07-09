@@ -714,9 +714,9 @@ def ubti_page():
       overflow: hidden;
     }}
     .result-head {{
+      position: relative;
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
+      gap: 18px;
       padding: 26px;
       border-bottom: 1px solid var(--line);
       background: linear-gradient(135deg, var(--cyan), var(--lilac));
@@ -724,15 +724,14 @@ def ubti_page():
     }}
     .result-visual {{
       display: grid;
-      justify-items: center;
-      gap: 12px;
+      justify-items: start;
     }}
     .persona-art {{
-      width: 142px;
+      width: min(62vw, 260px);
       aspect-ratio: 1;
       object-fit: contain;
       border-radius: 8px;
-      background: rgba(255,255,255,.48);
+      background: rgba(255,255,255,.38);
     }}
     .result-code {{
       font-size: clamp(42px, 8vw, 86px);
@@ -740,23 +739,27 @@ def ubti_page():
       line-height: .95;
       margin: 0;
       letter-spacing: 0;
+      padding-right: 92px;
     }}
     .result-name {{
       margin: 8px 0 0;
       font-size: clamp(22px, 4vw, 36px);
     }}
     .score {{
+      position: absolute;
+      top: 24px;
+      right: 24px;
       border: 2px solid var(--ink);
-      min-width: 124px;
-      height: 124px;
+      width: 88px;
+      height: 88px;
       display: grid;
       place-items: center;
       background: #fff;
       font-weight: 900;
-      font-size: 28px;
+      font-size: 24px;
       text-align: center;
       border-radius: 8px;
-      box-shadow: inset 0 -12px 0 var(--mint);
+      box-shadow: inset 0 -9px 0 var(--mint);
     }}
     .result-body {{
       padding: 24px;
@@ -851,10 +854,10 @@ def ubti_page():
       .content {{ padding: 18px; align-items: start; }}
       .question-panel {{ padding: 18px; }}
       .question-title {{ font-size: 26px; }}
-      .result-head {{ grid-template-columns: 1fr; }}
-      .result-visual {{ justify-items: start; }}
-      .persona-art {{ width: 128px; }}
-      .score {{ width: 112px; height: 112px; }}
+      .result-head {{ padding: 22px 18px; }}
+      .result-code {{ padding-right: 84px; }}
+      .persona-art {{ width: min(68vw, 250px); }}
+      .score {{ top: 20px; right: 18px; width: 76px; height: 76px; font-size: 22px; }}
       .result-body {{ grid-template-columns: 1fr; padding: 18px; }}
       .actions {{ padding: 0 18px 18px; }}
       .actions .btn {{ flex: 1 1 120px; }}
@@ -902,8 +905,8 @@ def ubti_page():
           </div>
           <div class="result-visual">
             <img class="persona-art" id="personaArt" src="static/personas/DDL-er.webp" alt="UBTI 人格蛋">
-            <div class="score"><span id="sufferScore"></span></div>
           </div>
+          <div class="score"><span id="sufferScore"></span></div>
         </div>
         <div class="result-body">
           <div class="block"><div class="label">副人格</div><p class="text" id="secondary"></p></div>
