@@ -1084,10 +1084,9 @@ def ubti_page():
         `受苦指数：${{scored.suffering}}/100`,
         `受苦领域：${{primary.domain}}`,
         `人格判词：${{primary.verdict}}`,
-        `网页已给出的自救建议：${{primary.advice}}`,
+        `网页自救建议：${{primary.advice}}`,
         '',
-        '请基于这个结果继续分析我的情况，给我更贴脸的分析、3 条新的今日自救任务和一条朋友圈文案。',
-        '要求：不要重复或改写“网页已给出的自救建议”；3 条任务必须互相不同、具体到今天能做，每条不超过 18 个字。'
+        '请继续分析我的情况，给我更贴脸的校园受苦报告。'
       ].join('\\n');
       lastResultText = [
         `我的 UBTI 主人格：${{scored.primary}}｜${{primary.name}}`,
