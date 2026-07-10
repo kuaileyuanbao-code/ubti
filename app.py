@@ -1086,7 +1086,7 @@ def ubti_page():
         `人格判词：${{primary.verdict}}`,
         `网页自救建议：${{primary.advice}}`,
         '',
-        '请继续分析我的情况，给我更贴脸的校园受苦报告。'
+        '请继续分析我的情况，解释这个受苦指数属于什么水平，给我更贴脸的校园受苦报告。'
       ].join('\\n');
       lastResultText = [
         `我的 UBTI 主人格：${{scored.primary}}｜${{primary.name}}`,
