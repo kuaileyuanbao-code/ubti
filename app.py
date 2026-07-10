@@ -959,6 +959,20 @@ def ubti_page():
       return url.toString().replace(/index\\.html$/, '');
     }}
 
+    function pickShareText(scored, primary) {{
+      const parts = primary.domain.split('/').map((item) => item.trim()).filter(Boolean);
+      const firstDomain = parts[0] || '大学生活';
+      const secondDomain = parts[1] || firstDomain;
+      const templates = [
+        `我测出了 ${{scored.primary}}｜${{primary.name}}，原来我不是累，是被${{firstDomain}}精准拿捏。`,
+        `今天领到 UBTI 校园受苦报告：${{scored.primary}}｜${{primary.name}}。${{primary.verdict}}`,
+        `我的大学受苦主线是${{firstDomain}} + ${{secondDomain}}，人格代码 ${{scored.primary}}。`,
+        `测完 UBTI 才懂，${{primary.name}}不是称号，是我的校园生存方式。`,
+        `我的 UBTI 是 ${{scored.primary}}｜${{primary.name}}，建议朋友们来看看谁更像校园受苦样本。`,
+      ];
+      return templates[Math.floor(Math.random() * templates.length)];
+    }}
+
     function showToast(message = '已复制') {{
       $('toast').textContent = message;
       $('toast').style.display = 'block';
@@ -1061,7 +1075,7 @@ def ubti_page():
       $('secondary').textContent = `${{scored.secondary}}｜${{secondary.name}}`;
       $('verdict').textContent = primary.verdict;
       $('advice').textContent = primary.advice;
-      const share = `我测出了 ${{scored.primary}}｜${{primary.name}}。笑死，不是性格，是大学给我的工伤鉴定。`;
+      const share = pickShareText(scored, primary);
       $('shareText').textContent = share;
       lastAgentPrompt = [
         '我的 UBTI 测试结果：',
@@ -1070,9 +1084,10 @@ def ubti_page():
         `受苦指数：${{scored.suffering}}/100`,
         `受苦领域：${{primary.domain}}`,
         `人格判词：${{primary.verdict}}`,
-        `自救建议：${{primary.advice}}`,
+        `网页已给出的自救建议：${{primary.advice}}`,
         '',
-        '请基于这个结果继续分析我的情况，给我更贴脸的分析、3 条今日自救任务和一条朋友圈文案。'
+        '请基于这个结果继续分析我的情况，给我更贴脸的分析、3 条新的今日自救任务和一条朋友圈文案。',
+        '要求：不要重复或改写“网页已给出的自救建议”；3 条任务必须互相不同、具体到今天能做，每条不超过 18 个字。'
       ].join('\\n');
       lastResultText = [
         `我的 UBTI 主人格：${{scored.primary}}｜${{primary.name}}`,
