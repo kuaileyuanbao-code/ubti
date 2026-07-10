@@ -461,7 +461,7 @@ def ubti_page():
       --blue: #2459ff;
       --green: #177a5b;
       --red: #c63d2f;
-      --yellow: #f2b84b;
+      --yellow: #eaf2ff;
       --mint: #e9f7ef;
       --panel: #ffffff;
       --lilac: #ece7ff;
